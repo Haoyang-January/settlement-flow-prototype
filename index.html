@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Settlement Flow — Clickable Prototype</title>
+<style>
+  @font-face {
+    font-family: 'Banana Grotesk';
+    src: url('assets/fonts/BananaGrotesk-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Banana Grotesk';
+    src: url('assets/fonts/BananaGrotesk-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'P22 Mackinac Pro';
+    src: url('assets/fonts/P22MackinacPro-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    --font-heading: 'P22 Mackinac Pro', Georgia, 'Times New Roman', serif;
+    --font-body: 'Banana Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+
+    --bg-page: #e9e6e1;
+    --bg-default: #f8f6f3;
+    --bg-paper: #ffffff;
+    --black: #000000;
+    --text-primary: rgba(0,0,0,0.87);
+    --text-secondary: rgba(0,0,0,0.6);
+    --text-disabled: rgba(0,0,0,0.38);
+    --divider: rgba(0,0,0,0.12);
+    --outline: rgba(0,0,0,0.23);
+
+    --primary-main: #001aa1;
+    --primary-500: #2c3da0;
+    --info-main: #009de1;
+
+    --success-main: #00a186;
+    --success-text: #004036;
+    --success-bg: #e6f6f3;
+
+    --warning-main: #591cb3;
+    --warning-text: #240b48;
+    --warning-bg: #eee8f7;
+
+    --error-main: #a1001b;
+    --error-text: #40000b;
+    --error-bg: #f6e6e8;
+
+    --elevation-1: 0px 2px 1px -1px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12);
+    --elevation-2: 0px 2px 0.5px rgba(0,0,0,0.2), 0px 1px 0.5px rgba(0,0,0,0.14), 0px 1px 1.5px rgba(0,0,0,0.12);
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg-page);
+    font-family: var(--font-body);
+    color: var(--text-primary);
+  }
+  img { display: block; }
+
+  .demo-toolbar {
+    max-width: 420px;
+    margin: 24px auto 12px;
+    padding: 0 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: -apple-system, sans-serif;
+  }
+  .demo-toolbar h1 {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #6b6459;
+    margin: 0;
+  }
+  .demo-toolbar .screen-tag {
+    font-size: 12px;
+    font-weight: 700;
+    background: #001aa1;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 100px;
+  }
+  .demo-toolbar button {
+    font-family: -apple-system, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #2c3da0;
+    background: none;
+    border: 1px solid #2c3da0;
+    border-radius: 100px;
+    padding: 5px 12px;
+    cursor: pointer;
+  }
+  .demo-hint {
+    max-width: 420px;
+    margin: 0 auto 16px;
+    padding: 0 4px;
+    font-size: 12px;
+    font-family: -apple-system, sans-serif;
+    color: #8a8377;
+  }
+
+  /* iPhone 14 device frame */
+  .iphone-frame {
+    position: relative;
+    width: 420px;
+    padding: 15px;
+    margin: 0 auto 48px;
+    background: linear-gradient(155deg, #3a3b3e 0%, #1c1d1f 12%, #1c1d1f 88%, #3a3b3e 100%);
+    border-radius: 62px;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.35), inset 0 0 0 2px rgba(255,255,255,0.06);
+  }
+  .side-btn {
+    position: absolute;
+    background: #232426;
+    border-radius: 2px;
+  }
+  .side-btn.mute      { top: 130px;  left: -3px; width: 3px; height: 30px; }
+  .side-btn.vol-up    { top: 184px;  left: -3px; width: 3px; height: 56px; }
+  .side-btn.vol-down  { top: 250px;  left: -3px; width: 3px; height: 56px; }
+  .side-btn.power     { top: 200px;  right: -3px; width: 3px; height: 88px; }
+
+  .iphone-screen {
+    position: relative;
+    width: 390px;
+    height: 844px;
+    background: var(--bg-default);
+    border-radius: 48px;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.4);
+  }
+  .status-bar-bg {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 48px;
+    background: var(--black);
+    z-index: 19;
+  }
+  .status-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px 0 24px;
+    z-index: 20;
+    color: white;
+    font-family: -apple-system, sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .status-bar .status-icons { display: flex; align-items: center; gap: 6px; }
+  .notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 154px; height: 26px;
+    background: #000;
+    border-radius: 0 0 16px 16px;
+    z-index: 21;
+  }
+  .home-indicator {
+    position: absolute;
+    bottom: 8px; left: 50%;
+    transform: translateX(-50%);
+    width: 134px; height: 5px;
+    border-radius: 3px;
+    background: rgba(0,0,0,0.3);
+    z-index: 21;
+  }
+  .screen-scroll {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .screen { display: none; flex-direction: column; min-height: 100%; }
+  .screen.active { display: flex; }
+
+  /* App bar */
+  .app-bar {
+    background: var(--black);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 52px 16px 4px;
+  }
+  .app-bar .icon-btn { display: flex; padding: 12px; }
+
+  /* Account summary */
+  .account-summary {
+    padding: 16px;
+    position: relative;
+  }
+  .account-summary .label {
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    display: block;
+    margin-bottom: 4px;
+  }
+  .account-summary .balance-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+  .account-summary .amount {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--text-primary);
+  }
+  .account-summary .negotiated {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 16px;
+  }
+  .account-summary .amount-stack .old {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--text-secondary);
+    text-decoration: line-through;
+    text-decoration-color: var(--success-main);
+    text-decoration-thickness: 2px;
+  }
+  .account-summary .amount-stack .new {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--success-main);
+    display: block;
+  }
+  .details-btn {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    color: var(--primary-500);
+    font-weight: 700;
+    font-size: 18px;
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: var(--font-body);
+    cursor: default;
+  }
+  .account-summary .divider {
+    border: none;
+    border-bottom: 1px solid var(--divider);
+    margin: 16px 0 0;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 100px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 700;
+    color: white;
+  }
+  .chip.chip-info { background: var(--info-main); }
+
+  /* Body */
+  .body-section {
+    padding: 32px 16px 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+  .heading {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1.4;
+    padding: 0 8px;
+    width: 100%;
+  }
+
+  .card {
+    background: var(--bg-paper);
+    border-radius: 24px;
+    box-shadow: var(--elevation-1);
+    padding: 32px 16px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .field-title { font-weight: 700; font-size: 18px; color: var(--black); font-family: var(--font-body); }
+
+  .input-outlined {
+    border: 1px solid var(--outline);
+    border-radius: 4px;
+    padding: 16px 12px;
+    position: relative;
+  }
+  .input-outlined .field-label {
+    position: absolute;
+    top: -7px;
+    left: 8px;
+    background: var(--bg-paper);
+    padding: 0 4px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    line-height: 12px;
+    color: var(--text-secondary);
+  }
+  .input-outlined .row { display: flex; align-items: center; gap: 8px; }
+  .input-outlined .prefix { color: var(--primary-main); font-size: 16px; font-family: var(--font-body); }
+  .input-outlined input {
+    border: none;
+    outline: none;
+    font-family: var(--font-body);
+    font-size: 16px;
+    color: var(--text-primary);
+    width: 100%;
+    background: transparent;
+  }
+
+  .alert {
+    display: flex;
+    gap: 0;
+    align-items: flex-start;
+    padding: 6px 16px;
+    border-radius: 4px;
+    width: 100%;
+  }
+  .alert img { flex-shrink: 0; width: 22px; height: 22px; margin: 7px 12px 7px 0; }
+  .alert .alert-body { padding: 8px 0; }
+  .alert p { margin: 0; font-family: var(--font-body); font-size: 16px; line-height: 1.5; }
+  .alert strong { display: block; font-weight: 700; }
+  .alert.alert-green   { background: var(--success-bg); color: var(--success-text); }
+  .alert.alert-purple  { background: var(--warning-bg); color: var(--warning-text); }
+  .alert.alert-red     { background: var(--error-bg);  color: var(--error-text); }
+  .alert.alert-hidden  { display: none; }
+
+  .info-card { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .info-card img { flex-shrink: 0; width: 64px; height: 64px; }
+  .info-card .info-text { display: flex; flex-direction: column; gap: 16px; }
+  .info-card .info-title { font-family: var(--font-body); font-weight: 700; font-size: 18px; margin: 0; color: var(--black); }
+  .info-card .info-body { font-family: var(--font-body); font-size: 18px; color: var(--text-primary); margin: 0; line-height: 1.5; }
+
+  .accordion {
+    background: var(--bg-paper);
+    border-radius: 24px;
+    box-shadow: var(--elevation-2);
+    width: 100%;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--text-primary);
+  }
+  .accordion img { width: 24px; height: 24px; }
+
+  .button-wrapper { width: 100%; display: flex; flex-direction: column; gap: 16px; }
+  .btn {
+    width: 100%;
+    height: 48px;
+    border-radius: 24px;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+  }
+  .btn-contained { background: var(--primary-main); color: white; box-shadow: var(--elevation-1); }
+  .btn-contained:active { background: #001480; }
+  .btn-outlined {
+    background: rgba(255,255,255,0.5);
+    border: 1px solid var(--primary-500);
+    color: var(--primary-500);
+    cursor: default;
+  }
+
+  .footer-legal {
+    background: var(--bg-default);
+    text-align: center;
+    padding: 48px 16px 16px;
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .footer-legal p { margin: 0 0 8px; }
+  .footer-legal .copy { color: var(--text-disabled); }
+  .footer-legal .links { font-weight: 700; color: var(--text-primary); }
+
+  /* Processing screen */
+  .processing-wrap { padding: 48px 16px; }
+  .processing-card {
+    background: var(--bg-paper);
+    border-radius: 24px;
+    box-shadow: var(--elevation-1);
+    padding: 48px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    text-align: center;
+  }
+  .hourglass-ring {
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    border: 2px dashed var(--success-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hourglass-ring svg { color: var(--success-main); animation: flip 1s linear infinite; }
+  @keyframes flip { 0% { transform: rotate(0deg); } 50% { transform: rotate(180deg); } 100% { transform: rotate(180deg); } }
+  .processing-card .title { font-family: var(--font-heading); font-weight: 700; font-size: 18px; }
+  .progress-track { width: 100%; height: 6px; background: #d9d5ee; border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; width: 0%; background: var(--primary-main); border-radius: 4px; }
+  .progress-pct { font-family: var(--font-heading); font-weight: 700; font-size: 16px; }
+
+  /* Offer landed */
+  .sif-card .sif-title { font-family: var(--font-body); font-weight: 700; font-size: 18px; margin: 0; color: var(--black); }
+  .options { display: flex; flex-direction: column; gap: 16px; position: relative; }
+  .option-card {
+    position: relative;
+    border: 1px solid var(--primary-main);
+    border-radius: 24px;
+    padding: 40px 24px;
+    text-align: center;
+    cursor: pointer;
+    background: white;
+  }
+  .option-card.selected {
+    border: 2px solid var(--primary-main);
+    background: rgba(0,26,161,0.04);
+    padding: 39px 23px;
+  }
+  .option-card .price { font-family: var(--font-heading); font-weight: 700; font-size: 32px; line-height: 1.2; margin: 0 0 16px; color: var(--text-primary); }
+  .option-card .opt-title { font-family: var(--font-heading); font-weight: 700; font-size: 18px; line-height: 1.4; color: var(--black); margin: 0; }
+  .option-card .opt-sub { font-family: var(--font-body); font-size: 18px; color: var(--text-secondary); margin: 2px 0 0; }
+  .option-card .check-badge {
+    position: absolute; top: 6px; right: 6px;
+    width: 24px; height: 24px;
+    display: none;
+  }
+  .option-card.selected .check-badge { display: block; }
+  .best-savings-badge {
+    position: absolute; top: -18px; left: 14px;
+    background: var(--primary-main); color: white;
+    font-family: var(--font-body);
+    font-size: 12px; line-height: 16px; font-weight: 700;
+    padding: 8px 12px; border-radius: 100px;
+    z-index: 2;
+  }
+
+  .offer-summary-card { gap: 16px; }
+  .offer-summary-card .summary-label {
+    font-family: var(--font-body);
+    font-weight: 700; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; margin: 0;
+    color: var(--text-primary);
+  }
+  .summary-row { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-body); font-size: 16px; padding: 4px 0; }
+  .summary-row .k { font-weight: 700; }
+  .summary-row .v { color: var(--text-primary); }
+  .summary-row .v.green { color: var(--success-main); }
+  .summary-row .v.strike { color: var(--text-disabled); text-decoration: line-through; text-decoration-color: var(--success-main); margin-right: 8px; }
+  .summary-row .v-group { display: flex; align-items: center; gap: 6px; }
+
+  .interact-hint {
+    font-family: -apple-system, sans-serif;
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-align: center;
+    padding-top: 4px;
+  }
+
+  .page-wrap {
+    overflow-x: auto;
+    padding: 8px 0 24px;
+  }
+  .page-inner {
+    width: 420px;
+    margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-wrap"><div class="page-inner">
+  <div class="demo-toolbar">
+    <h1>Settlement Flow Prototype</h1>
+    <span class="screen-tag" id="screenTag">Screen 1</span>
+  </div>
+  <div class="demo-hint">Click through: enter an amount → Submit Offer → wait for processing → pick a repayment option.
+    <button onclick="restart()" style="margin-left:6px;">Restart</button>
+  </div>
+
+  <div class="iphone-frame">
+    <span class="side-btn mute"></span>
+    <span class="side-btn vol-up"></span>
+    <span class="side-btn vol-down"></span>
+    <span class="side-btn power"></span>
+    <div class="iphone-screen">
+      <div class="status-bar-bg"></div>
+      <div class="status-bar">
+        <span class="time">9:41</span>
+        <span class="status-icons">
+          <svg width="18" height="12" viewBox="0 0 18 12" fill="none"><rect x="0" y="7" width="3" height="5" rx="0.5" fill="white"/><rect x="5" y="5" width="3" height="7" rx="0.5" fill="white"/><rect x="10" y="3" width="3" height="9" rx="0.5" fill="white"/><rect x="15" y="0" width="3" height="12" rx="0.5" fill="white"/></svg>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M8 10.5a1.1 1.1 0 110-2.2 1.1 1.1 0 010 2.2zM4.7 6.9a4.6 4.6 0 016.6 0l-1.1 1.1a3.1 3.1 0 00-4.4 0L4.7 6.9zM2.2 4.4a8.1 8.1 0 0111.6 0L12.7 5.5a6.6 6.6 0 00-9.4 0L2.2 4.4z" fill="white"/></svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="white"/><rect x="2" y="2" width="18" height="8" rx="1.5" fill="white"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="white"/></svg>
+        </span>
+      </div>
+      <div class="notch"></div>
+
+      <div class="screen-scroll" id="screenScroll">
+
+    <!-- SCREEN 1: Negotiation input -->
+    <div class="screen active" id="screen-negotiate">
+      <div class="app-bar">
+        <span class="icon-btn"><img src="assets/icons/menu.svg" width="24" height="24" alt="" /></span>
+      </div>
+      <div class="account-summary">
+        <span class="label">Amount Owed</span>
+        <div class="balance-row">
+          <span class="amount">$1,000.00</span>
+          <button class="details-btn" type="button">Details
+            <img src="assets/icons/chevron-right.svg" width="18" height="22" alt="" />
+          </button>
+        </div>
+        <hr class="divider" />
+      </div>
+      <div class="body-section">
+        <div class="heading">Negotiate my Total Repayment Amount</div>
+        <div class="card">
+          <div class="field-title">What would you like your repayment amount to be?</div>
+          <div class="input-outlined">
+            <span class="field-label">Amount</span>
+            <div class="row">
+              <span class="prefix">$</span>
+              <input id="amountInput" type="number" inputmode="numeric" value="800" />
+            </div>
+          </div>
+
+          <div class="alert alert-green" id="alertGreen">
+            <img src="assets/icons/check-circle-outline.svg" alt="" />
+            <div class="alert-body"><p><strong>This offer is likely to be accepted</strong><span id="pctGreen">You're requesting 20% off your balance.</span></p></div>
+          </div>
+          <div class="alert alert-purple alert-hidden" id="alertPurple">
+            <img src="assets/icons/warning-amber.svg" alt="" />
+            <div class="alert-body"><p><strong>This offer will need review and may not be approved</strong><span id="pctPurple">You're requesting 38% off your balance.</span></p></div>
+          </div>
+          <div class="alert alert-red alert-hidden" id="alertRed">
+            <img src="assets/icons/error-outline.svg" alt="" />
+            <div class="alert-body"><p><strong>This offer will need review and is unlikely to be accepted</strong><span id="pctRed">You're requesting 80% off your balance.</span></p></div>
+          </div>
+        </div>
+
+        <div class="card info-card">
+          <img src="assets/icons/calendar.svg" alt="" />
+          <div class="info-text">
+            <p class="info-title">We have flexible payment plans</p>
+            <p class="info-body">If your accepted offer is over $30, you can choose to set up a payment plan on the next step.</p>
+          </div>
+        </div>
+
+        <div class="accordion">
+          Frequently Asked Questions
+          <img src="assets/icons/chevron-down.svg" alt="" />
+        </div>
+
+        <div class="button-wrapper">
+          <button class="btn btn-contained" onclick="submitOffer()">Submit Offer</button>
+          <button class="btn btn-outlined" type="button">Back</button>
+        </div>
+        <div class="interact-hint">Only the amount field and “Submit Offer” are interactive on this screen.</div>
+      </div>
+      <div class="footer-legal">
+        <p class="copy">© January Technologies, Inc.</p>
+        <p class="links">Terms of Service / Privacy Policy / State Information</p>
+      </div>
+    </div>
+
+    <!-- SCREEN 3: Processing -->
+    <div class="screen" id="screen-processing">
+      <div class="app-bar">
+        <span class="icon-btn"><img src="assets/icons/menu.svg" width="24" height="24" alt="" /></span>
+      </div>
+      <div class="processing-wrap">
+        <div class="processing-card">
+          <div class="hourglass-ring">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none"><path d="M6 3h12M6 21h12M7 3c0 5 5 6 5 9s-5 4-5 9M17 3c0 5-5 6-5 9s5 4 5 9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="title">Communicating with Demo Client</div>
+          <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+          <div class="progress-pct"><span id="progressPct">0</span>% Completed</div>
+        </div>
+      </div>
+      <div class="footer-legal">
+        <p class="copy">© January Technologies, Inc.</p>
+        <p class="links">Terms of Service / Privacy Policy / State Information</p>
+      </div>
+    </div>
+
+    <!-- SCREENS 4/5: Offer landed (combined, toggled by selection) -->
+    <div class="screen" id="screen-offer">
+      <div class="app-bar">
+        <span class="icon-btn"><img src="assets/icons/menu.svg" width="24" height="24" alt="" /></span>
+      </div>
+      <div class="account-summary">
+        <span class="label">Repayment Amount</span>
+        <div class="negotiated">
+          <div class="balance-row">
+            <div class="amount-stack">
+              <span class="old">1000.00</span>
+              <span class="new" id="topAmount">$600.00</span>
+              <div style="margin-top:8px;"><span class="chip chip-info">Expires in 30 days</span></div>
+            </div>
+            <button class="details-btn" type="button">Details
+              <img src="assets/icons/chevron-right.svg" width="18" height="22" alt="" />
+            </button>
+          </div>
+        </div>
+        <hr class="divider" />
+      </div>
+
+      <div class="body-section">
+        <div class="heading">Great news – you received two accepted offers!</div>
+
+        <div class="card sif-card">
+          <p class="sif-title">Choose the repayment option that works best for you.</p>
+          <div class="options">
+            <div class="best-savings-badge">Best savings</div>
+            <div class="option-card" id="opt600" onclick="selectOption('600')">
+              <img class="check-badge" src="assets/icons/check-circle-filled.svg" alt="" />
+              <p class="price">$600.00</p>
+              <p class="opt-title">One-time payment</p>
+              <p class="opt-sub">One payment of $600</p>
+            </div>
+            <div class="option-card" id="opt660" onclick="selectOption('660')">
+              <img class="check-badge" src="assets/icons/check-circle-filled.svg" alt="" />
+              <p class="price">$660.00</p>
+              <p class="opt-title">Interest-free installments</p>
+              <p class="opt-sub">Starting at $65/month</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="button-wrapper">
+          <button class="btn btn-contained" type="button" id="offerCta">Select a Payment Method</button>
+        </div>
+
+        <div class="card offer-summary-card">
+          <p class="summary-label">Offer Summary</p>
+          <div class="summary-row"><span class="k">Requires Payment Plan</span><span class="v">Yes</span></div>
+          <div class="summary-row"><span class="k">First Payment Due</span>
+            <span class="v-group">
+              <img src="assets/icons/clock-filled.svg" width="16" height="16" alt="" />
+              <span class="v">Within 30 days</span>
+            </span>
+          </div>
+          <div class="summary-row"><span class="k">Interest &amp; Fees</span><span class="v green">Never</span></div>
+          <div class="summary-row">
+            <span class="k">Repayment Amount</span>
+            <span class="v-group"><span class="v strike">$1000.00</span></span>
+          </div>
+          <div class="summary-row"><span class="k"></span><span class="v green" id="summaryAmount">$600.00</span></div>
+        </div>
+        <div class="interact-hint">Only the two option cards are interactive on this screen.</div>
+      </div>
+      <div class="footer-legal">
+        <p class="copy">© January Technologies, Inc.</p>
+        <p class="links">Terms of Service / Privacy Policy / State Information</p>
+      </div>
+    </div>
+
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+</div></div>
+
+<script>
+  const amountInput = document.getElementById('amountInput');
+  const alertGreen = document.getElementById('alertGreen');
+  const alertPurple = document.getElementById('alertPurple');
+  const alertRed = document.getElementById('alertRed');
+  const pctGreen = document.getElementById('pctGreen');
+  const pctPurple = document.getElementById('pctPurple');
+  const pctRed = document.getElementById('pctRed');
+  const screenTag = document.getElementById('screenTag');
+
+  function pctOffText(amount) {
+    const pct = Math.round(((1000 - amount) / 1000) * 100);
+    return `You're requesting ${pct}% off your balance.`;
+  }
+
+  function updateAlert() {
+    const amount = parseFloat(amountInput.value);
+    [alertGreen, alertPurple, alertRed].forEach(a => a.classList.add('alert-hidden'));
+    if (isNaN(amount)) return;
+    if (amount >= 700) {
+      alertGreen.classList.remove('alert-hidden');
+      pctGreen.textContent = pctOffText(amount);
+    } else if (amount >= 600) {
+      alertPurple.classList.remove('alert-hidden');
+      pctPurple.textContent = pctOffText(amount);
+    } else {
+      alertRed.classList.remove('alert-hidden');
+      pctRed.textContent = pctOffText(amount);
+    }
+  }
+  amountInput.addEventListener('input', updateAlert);
+  updateAlert();
+
+  function showScreen(id, label) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    screenTag.textContent = label;
+    document.getElementById('screenScroll').scrollTop = 0;
+  }
+
+  function submitOffer() {
+    showScreen('screen-processing', 'Screen 3 · Processing');
+    const fill = document.getElementById('progressFill');
+    const pctEl = document.getElementById('progressPct');
+    fill.style.width = '0%';
+    pctEl.textContent = '0';
+    const duration = 1000;
+    const start = performance.now();
+    function tick(now) {
+      const elapsed = now - start;
+      const pct = Math.min(100, Math.round((elapsed / duration) * 100));
+      fill.style.width = pct + '%';
+      pctEl.textContent = pct;
+      if (elapsed < duration) {
+        requestAnimationFrame(tick);
+      } else {
+        selectOption('600');
+        showScreen('screen-offer', 'Screen 4 · Offer landed ($600)');
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function selectOption(value) {
+    const opt600 = document.getElementById('opt600');
+    const opt660 = document.getElementById('opt660');
+    const topAmount = document.getElementById('topAmount');
+    const summaryAmount = document.getElementById('summaryAmount');
+    const cta = document.getElementById('offerCta');
+
+    if (value === '600') {
+      opt600.classList.add('selected');
+      opt660.classList.remove('selected');
+      topAmount.textContent = '$600.00';
+      summaryAmount.textContent = '$600.00';
+      cta.textContent = 'Select a Payment Method';
+    } else {
+      opt660.classList.add('selected');
+      opt600.classList.remove('selected');
+      topAmount.textContent = '$660.00';
+      summaryAmount.textContent = '$660.00';
+      cta.textContent = 'Create a Payment Plan';
+    }
+
+    if (document.getElementById('screen-offer').classList.contains('active')) {
+      screenTag.textContent = value === '600' ? 'Screen 4 · Offer landed ($600)' : 'Screen 5 · Offer landed ($660)';
+    }
+  }
+
+  function restart() {
+    amountInput.value = 800;
+    updateAlert();
+    selectOption('600');
+    showScreen('screen-negotiate', 'Screen 1');
+  }
+</script>
+</body>
+</html>
