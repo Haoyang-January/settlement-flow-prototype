@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Settlement Flow — Concept B Prototype</title>
+<style>
+  @font-face {
+    font-family: 'Banana Grotesk';
+    src: url('../assets/fonts/BananaGrotesk-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'Banana Grotesk';
+    src: url('../assets/fonts/BananaGrotesk-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: 'P22 Mackinac Pro';
+    src: url('../assets/fonts/P22MackinacPro-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    --font-heading: 'P22 Mackinac Pro', Georgia, 'Times New Roman', serif;
+    --font-body: 'Banana Grotesk', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+
+    --bg-page: #e9e6e1;
+    --bg-default: #f8f6f3;
+    --bg-paper: #ffffff;
+    --black: #000000;
+    --text-primary: rgba(0,0,0,0.87);
+    --text-secondary: rgba(0,0,0,0.6);
+    --text-disabled: rgba(0,0,0,0.38);
+    --divider: rgba(0,0,0,0.12);
+
+    --primary-main: #001aa1;
+    --primary-500: #2c3da0;
+    --info-main: #009de1;
+    --success-main: #00a186;
+
+    --elevation-1: 0px 2px 1px -1px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12);
+  }
+
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg-page);
+    font-family: var(--font-body);
+    color: var(--text-primary);
+  }
+  img { display: block; }
+
+  .demo-toolbar {
+    max-width: 420px;
+    margin: 24px auto 12px;
+    padding: 0 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: -apple-system, sans-serif;
+  }
+  .demo-toolbar h1 {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #6b6459;
+    margin: 0;
+  }
+  .demo-toolbar .screen-tag {
+    font-size: 12px;
+    font-weight: 700;
+    background: #001aa1;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 100px;
+  }
+  .demo-toolbar button {
+    font-family: -apple-system, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #2c3da0;
+    background: none;
+    border: 1px solid #2c3da0;
+    border-radius: 100px;
+    padding: 5px 12px;
+    cursor: pointer;
+  }
+  .demo-hint {
+    max-width: 420px;
+    margin: 0 auto 16px;
+    padding: 0 4px;
+    font-size: 12px;
+    font-family: -apple-system, sans-serif;
+    color: #8a8377;
+  }
+
+  /* iPhone 14 device frame */
+  .iphone-frame {
+    position: relative;
+    width: 420px;
+    padding: 15px;
+    margin: 0 auto 48px;
+    background: linear-gradient(155deg, #3a3b3e 0%, #1c1d1f 12%, #1c1d1f 88%, #3a3b3e 100%);
+    border-radius: 62px;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.35), inset 0 0 0 2px rgba(255,255,255,0.06);
+  }
+  .side-btn {
+    position: absolute;
+    background: #232426;
+    border-radius: 2px;
+  }
+  .side-btn.mute      { top: 130px;  left: -3px; width: 3px; height: 30px; }
+  .side-btn.vol-up    { top: 184px;  left: -3px; width: 3px; height: 56px; }
+  .side-btn.vol-down  { top: 250px;  left: -3px; width: 3px; height: 56px; }
+  .side-btn.power     { top: 200px;  right: -3px; width: 3px; height: 88px; }
+
+  .iphone-screen {
+    position: relative;
+    width: 390px;
+    height: 844px;
+    background: var(--bg-default);
+    border-radius: 48px;
+    overflow: hidden;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.4);
+  }
+  .status-bar-bg {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 48px;
+    background: var(--black);
+    z-index: 19;
+  }
+  .status-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px 0 24px;
+    z-index: 20;
+    color: white;
+    font-family: -apple-system, sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .status-bar .status-icons { display: flex; align-items: center; gap: 6px; }
+  .notch {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 154px; height: 26px;
+    background: #000;
+    border-radius: 0 0 16px 16px;
+    z-index: 21;
+  }
+  .home-indicator {
+    position: absolute;
+    bottom: 8px; left: 50%;
+    transform: translateX(-50%);
+    width: 134px; height: 5px;
+    border-radius: 3px;
+    background: rgba(0,0,0,0.3);
+    z-index: 21;
+  }
+  .screen-scroll {
+    position: absolute;
+    inset: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .screen { display: flex; flex-direction: column; min-height: 100%; }
+
+  /* App bar */
+  .app-bar {
+    background: var(--black);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 52px 16px 4px;
+  }
+  .app-bar .icon-btn { display: flex; padding: 12px; }
+
+  /* Account summary */
+  .account-summary {
+    padding: 16px;
+    position: relative;
+  }
+  .account-summary .label {
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    display: block;
+  }
+  .account-summary .balance-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+  .account-summary .negotiated .amount-stack { padding-top: 16px; }
+  .account-summary .amount-stack .old {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--text-secondary);
+    position: relative;
+    display: inline-block;
+  }
+  .account-summary .amount-stack .old::after {
+    content: '';
+    position: absolute;
+    left: -8px; right: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 2px;
+    border-radius: 1px;
+    background: var(--success-main);
+  }
+  .account-summary .amount-stack .new {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1.4;
+    color: var(--success-main);
+    display: block;
+  }
+  .details-btn {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    color: var(--primary-500);
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 24px;
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: var(--font-body);
+    cursor: default;
+  }
+  .account-summary .divider {
+    border: none;
+    border-bottom: 1px solid var(--divider);
+    margin: 16px 0 0;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 100px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 700;
+    color: white;
+  }
+  .chip.chip-info { background: var(--info-main); }
+
+  /* Body */
+  .body-section {
+    padding: 48px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+    flex: 1;
+  }
+  .heading-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 8px;
+    width: 100%;
+  }
+  .heading {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1.4;
+    margin: 0;
+    color: var(--text-primary);
+  }
+  .heading-caption {
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    margin: 0;
+    color: var(--text-primary);
+  }
+
+  /* SIF vs PP Selector card */
+  .selector-card {
+    background: var(--bg-paper);
+    border-radius: 24px;
+    box-shadow: var(--elevation-1);
+    padding: 32px 16px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+  .selector-card .selector-title {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 1.5;
+    margin: 0;
+    color: var(--black);
+  }
+
+  /* Plan summary (green) box */
+  .plan-summary {
+    background: rgba(0,161,134,0.04);
+    border-radius: 24px;
+    padding: 24px 16px;
+    width: 100%;
+  }
+  .plan-summary .rows { display: flex; flex-direction: column; gap: 16px; }
+  .plan-summary .row-group { display: flex; flex-direction: column; gap: 8px; }
+  .plan-summary .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .plan-summary .row .k { font-weight: 700; color: var(--text-primary); }
+  .plan-summary .row .v { color: var(--text-primary); }
+  .plan-summary .row .v.green { color: var(--success-main); }
+  .plan-summary .row .v.strike { text-decoration: line-through; }
+  .plan-summary .divider {
+    border: none;
+    border-bottom: 1px solid var(--divider);
+    margin: 0;
+  }
+  .plan-summary .row .v.balance {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 1.4;
+    color: var(--success-main);
+  }
+
+  /* Option cards */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+  }
+  .option-card {
+    position: relative;
+    background: white;
+    border: 1px solid var(--primary-main);
+    border-radius: 24px;
+    padding: 40px 24px;
+    text-align: center;
+    cursor: pointer;
+    width: 100%;
+  }
+  .option-card.selected { background: rgba(0,26,161,0.04); }
+  .option-card .opt-title {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 1.4;
+    color: var(--text-primary);
+    margin: 0 0 4px;
+  }
+  .option-card .opt-sub {
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--text-primary);
+    margin: 0;
+  }
+  .option-card .check-badge {
+    position: absolute;
+    top: 7px; right: 7px;
+    width: 24px; height: 24px;
+    display: none;
+  }
+  .option-card.selected .check-badge { display: block; }
+  .option-card .card-chip {
+    position: absolute;
+    top: -17px; left: 21px;
+    display: none;
+  }
+  .option-card .card-chip.chip-black { background: var(--black); }
+  .option-card .card-chip.chip-green { background: var(--success-main); }
+
+  .button-wrapper { width: 100%; display: none; }
+  .button-wrapper.visible { display: block; }
+  .btn {
+    width: 100%;
+    height: 48px;
+    border-radius: 24px;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+    border: none;
+    background: var(--primary-main);
+    color: white;
+    box-shadow: var(--elevation-1);
+  }
+
+  .footer-legal {
+    background: var(--bg-default);
+    text-align: center;
+    padding: 48px 16px 16px;
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  .footer-legal p { margin: 0 0 8px; }
+  .footer-legal .copy { color: var(--text-disabled); }
+  .footer-legal .links { font-weight: 700; color: var(--text-primary); }
+
+  .interact-hint {
+    font-family: -apple-system, sans-serif;
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-align: center;
+    padding-top: 4px;
+  }
+
+  .page-wrap {
+    overflow-x: auto;
+    padding: 8px 0 24px;
+  }
+  .page-inner {
+    width: 420px;
+    margin: 0 auto;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-wrap"><div class="page-inner">
+  <div class="demo-toolbar">
+    <h1>Concept B Prototype</h1>
+    <span class="screen-tag" id="screenTag">Screen 1 · Landing</span>
+  </div>
+  <div class="demo-hint">Participants land on the approved-offer screen, then click an option card to explore. Clicking the other card switches the selection.
+    <button onclick="setState('landing')" style="margin-left:6px;">Restart</button>
+  </div>
+
+  <div class="iphone-frame">
+    <span class="side-btn mute"></span>
+    <span class="side-btn vol-up"></span>
+    <span class="side-btn vol-down"></span>
+    <span class="side-btn power"></span>
+    <div class="iphone-screen">
+      <div class="status-bar-bg"></div>
+      <div class="status-bar">
+        <span class="time">9:41</span>
+        <span class="status-icons">
+          <svg width="18" height="12" viewBox="0 0 18 12" fill="none"><rect x="0" y="7" width="3" height="5" rx="0.5" fill="white"/><rect x="5" y="5" width="3" height="7" rx="0.5" fill="white"/><rect x="10" y="3" width="3" height="9" rx="0.5" fill="white"/><rect x="15" y="0" width="3" height="12" rx="0.5" fill="white"/></svg>
+          <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M8 10.5a1.1 1.1 0 110-2.2 1.1 1.1 0 010 2.2zM4.7 6.9a4.6 4.6 0 016.6 0l-1.1 1.1a3.1 3.1 0 00-4.4 0L4.7 6.9zM2.2 4.4a8.1 8.1 0 0111.6 0L12.7 5.5a6.6 6.6 0 00-9.4 0L2.2 4.4z" fill="white"/></svg>
+          <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="white"/><rect x="2" y="2" width="18" height="8" rx="1.5" fill="white"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="white"/></svg>
+        </span>
+      </div>
+      <div class="notch"></div>
+
+      <div class="screen-scroll" id="screenScroll">
+
+        <div class="screen">
+          <div class="app-bar">
+            <span class="icon-btn"><img src="../assets/icons/menu.svg" width="24" height="24" alt="" /></span>
+          </div>
+          <div class="account-summary">
+            <span class="label">Repayment Amount</span>
+            <div class="negotiated">
+              <div class="balance-row">
+                <div class="amount-stack">
+                  <span class="old">1000.00</span>
+                  <span class="new" id="topAmount">$620.00</span>
+                  <div style="margin-top:8px;"><span class="chip chip-info">Expires in 30 days</span></div>
+                </div>
+                <button class="details-btn" type="button">Details
+                  <img src="../assets/icons/chevron-right.svg" width="18" height="22" alt="" />
+                </button>
+              </div>
+            </div>
+            <hr class="divider" />
+          </div>
+
+          <div class="body-section">
+            <div class="heading-wrapper">
+              <p class="heading">Your offer was approved 🎉</p>
+              <p class="heading-caption">Set up the first payment within 30 days to lock in your offer.</p>
+            </div>
+
+            <div class="selector-card">
+              <p class="selector-title">How would you like to repay the new amount?</p>
+
+              <div class="plan-summary">
+                <div class="rows">
+                  <div class="row-group">
+                    <div class="row"><span class="k">First Payment Due</span><span class="v">Within 30 days</span></div>
+                    <div class="row"><span class="k">Interest &amp; Fees</span><span class="v green">Never</span></div>
+                    <div class="row"><span class="k">Original Balance</span><span class="v strike">$1,000.00</span></div>
+                  </div>
+                  <hr class="divider" />
+                  <div class="row"><span class="k">New Balance</span><span class="v balance" id="summaryAmount">$620.00</span></div>
+                </div>
+              </div>
+
+              <div class="options">
+                <div class="option-card" id="optOnetime" onclick="setState('onetime')">
+                  <img class="check-badge" src="../assets/icons/check-circle-filled.svg" alt="" />
+                  <span class="chip card-chip chip-black" id="onetimeChip">Extra $60 off</span>
+                  <p class="opt-title">One-time payment</p>
+                  <p class="opt-sub">Resolve the balance today</p>
+                </div>
+                <div class="option-card" id="optPlan" onclick="setState('plan')">
+                  <img class="check-badge" src="../assets/icons/check-circle-filled.svg" alt="" />
+                  <p class="opt-title">Payment plan</p>
+                  <p class="opt-sub">Starting at $65/month</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="button-wrapper" id="ctaWrapper">
+              <button class="btn" type="button" id="ctaButton">Select a Payment Method</button>
+            </div>
+            <div class="interact-hint">Only the two option cards are interactive.</div>
+          </div>
+
+          <div class="footer-legal">
+            <p class="copy">© January Technologies, Inc.</p>
+            <p class="links">Terms of Service / Privacy Policy / State Information</p>
+          </div>
+        </div>
+
+      </div>
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+</div></div>
+
+<script>
+  const screenTag = document.getElementById('screenTag');
+  const topAmount = document.getElementById('topAmount');
+  const summaryAmount = document.getElementById('summaryAmount');
+  const optOnetime = document.getElementById('optOnetime');
+  const optPlan = document.getElementById('optPlan');
+  const onetimeChip = document.getElementById('onetimeChip');
+  const ctaWrapper = document.getElementById('ctaWrapper');
+  const ctaButton = document.getElementById('ctaButton');
+
+  function setState(state) {
+    optOnetime.classList.remove('selected');
+    optPlan.classList.remove('selected');
+    onetimeChip.classList.remove('chip-green');
+    onetimeChip.classList.add('chip-black');
+    onetimeChip.style.display = 'inline-flex';
+
+    if (state === 'landing') {
+      topAmount.textContent = '$620.00';
+      summaryAmount.textContent = '$620.00';
+      onetimeChip.textContent = 'Extra $60 off';
+      ctaWrapper.classList.remove('visible');
+      screenTag.textContent = 'Screen 1 · Landing';
+    } else if (state === 'onetime') {
+      topAmount.textContent = '$560.00';
+      summaryAmount.textContent = '$560.00';
+      optOnetime.classList.add('selected');
+      onetimeChip.textContent = 'Extra $80 off applied';
+      onetimeChip.classList.remove('chip-black');
+      onetimeChip.classList.add('chip-green');
+      ctaButton.textContent = 'Select a Payment Method';
+      ctaWrapper.classList.add('visible');
+      screenTag.textContent = 'Screen 2 · One-time payment';
+    } else {
+      topAmount.textContent = '$560.00';
+      summaryAmount.textContent = '$560.00';
+      optPlan.classList.add('selected');
+      onetimeChip.textContent = 'Extra $80 off';
+      ctaButton.textContent = 'Create a Payment Plan';
+      ctaWrapper.classList.add('visible');
+      screenTag.textContent = 'Screen 3 · Payment plan';
+    }
+  }
+
+  setState('landing');
+</script>
+</body>
+</html>
