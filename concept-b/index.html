@@ -437,14 +437,6 @@
   .footer-legal .copy { color: var(--text-disabled); }
   .footer-legal .links { font-weight: 700; color: var(--text-primary); }
 
-  .interact-hint {
-    font-family: -apple-system, sans-serif;
-    font-size: 11px;
-    color: var(--text-secondary);
-    text-align: center;
-    padding-top: 4px;
-  }
-
   .page-wrap {
     overflow-x: auto;
     padding: 8px 0 24px;
@@ -545,7 +537,6 @@
             <div class="button-wrapper" id="ctaWrapper">
               <button class="btn" type="button" id="ctaButton">Select a Payment Method</button>
             </div>
-            <div class="interact-hint">Only the two option cards are interactive.</div>
           </div>
 
           <div class="footer-legal">
@@ -587,7 +578,7 @@
       topAmount.textContent = '$560.00';
       summaryAmount.textContent = '$560.00';
       optOnetime.classList.add('selected');
-      onetimeChip.textContent = 'Extra $80 off applied';
+      onetimeChip.textContent = 'Extra $60 off applied';
       onetimeChip.classList.remove('chip-black');
       onetimeChip.classList.add('chip-green');
       ctaButton.textContent = 'Select a Payment Method';
@@ -597,7 +588,7 @@
       topAmount.textContent = '$560.00';
       summaryAmount.textContent = '$560.00';
       optPlan.classList.add('selected');
-      onetimeChip.textContent = 'Extra $80 off';
+      onetimeChip.textContent = 'Extra $60 off';
       ctaButton.textContent = 'Create a Payment Plan';
       ctaWrapper.classList.add('visible');
       screenTag.textContent = 'Screen 3 · Payment plan';
