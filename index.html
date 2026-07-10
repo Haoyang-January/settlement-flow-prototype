@@ -487,7 +487,8 @@
     font-weight: 700; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; margin: 0;
     color: var(--text-primary);
   }
-  .summary-row { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-body); font-size: 16px; padding: 4px 0; }
+  .summary-rows { display: flex; flex-direction: column; gap: 8px; }
+  .summary-row { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-body); font-size: 16px; }
   .summary-row .k { font-weight: 700; }
   .summary-row .v { color: var(--text-primary); }
   .summary-row .v.green { color: var(--success-main); }
@@ -679,19 +680,21 @@
 
         <div class="card offer-summary-card">
           <p class="summary-label">Offer Summary</p>
-          <div class="summary-row"><span class="k">Requires Payment Plan</span><span class="v">Yes</span></div>
-          <div class="summary-row"><span class="k">First Payment Due</span>
-            <span class="v-group">
-              <img src="assets/icons/clock-filled.svg" width="16" height="16" alt="" />
-              <span class="v">Within 30 days</span>
-            </span>
+          <div class="summary-rows">
+            <div class="summary-row"><span class="k">Requires Payment Plan</span><span class="v">Yes</span></div>
+            <div class="summary-row"><span class="k">First Payment Due</span>
+              <span class="v-group">
+                <img src="assets/icons/clock-filled.svg" width="16" height="16" alt="" />
+                <span class="v">Within 30 days</span>
+              </span>
+            </div>
+            <div class="summary-row"><span class="k">Interest &amp; Fees</span><span class="v green">Never</span></div>
+            <div class="summary-row">
+              <span class="k">Repayment Amount</span>
+              <span class="v-group"><span class="v strike">$1000.00</span></span>
+            </div>
+            <div class="summary-row"><span class="k"></span><span class="v green" id="summaryAmount">$600.00</span></div>
           </div>
-          <div class="summary-row"><span class="k">Interest &amp; Fees</span><span class="v green">Never</span></div>
-          <div class="summary-row">
-            <span class="k">Repayment Amount</span>
-            <span class="v-group"><span class="v strike">$1000.00</span></span>
-          </div>
-          <div class="summary-row"><span class="k"></span><span class="v green" id="summaryAmount">$600.00</span></div>
         </div>
         <div class="interact-hint">Only the two option cards are interactive on this screen.</div>
       </div>
