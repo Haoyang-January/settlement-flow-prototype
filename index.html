@@ -481,19 +481,30 @@
     z-index: 2;
   }
 
-  .offer-summary-card { gap: 16px; }
+  .offer-summary-card { gap: 16px; box-shadow: none; filter: drop-shadow(0px 2px 0.5px rgba(0,0,0,0.2)) drop-shadow(0px 1px 0.5px rgba(0,0,0,0.14)) drop-shadow(0px 1px 1.5px rgba(0,0,0,0.12)); }
   .offer-summary-card .summary-label {
     font-family: var(--font-body);
-    font-weight: 700; font-size: 16px; letter-spacing: 2px; text-transform: uppercase; margin: 0;
+    font-weight: 700; font-size: 16px; line-height: 1.5; letter-spacing: 2px; text-transform: uppercase; margin: 0;
     color: var(--text-primary);
   }
   .summary-rows { display: flex; flex-direction: column; gap: 8px; }
-  .summary-row { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-body); font-size: 16px; }
+  .summary-row { display: flex; justify-content: space-between; align-items: center; font-family: var(--font-body); font-size: 16px; line-height: 1.5; }
   .summary-row .k { font-weight: 700; }
+  .summary-row .k.tall { font-size: 18px; }
   .summary-row .v { color: var(--text-primary); }
   .summary-row .v.green { color: var(--success-main); }
-  .summary-row .v.strike { color: var(--text-disabled); text-decoration: line-through; text-decoration-color: var(--success-main); margin-right: 8px; }
-  .summary-row .v-group { display: flex; align-items: center; gap: 6px; }
+  .summary-row .v.strike { color: var(--text-disabled); position: relative; }
+  .summary-row .v.strike::after {
+    content: '';
+    position: absolute;
+    left: -8px; right: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 2px;
+    border-radius: 1px;
+    background: var(--success-main);
+  }
+  .summary-row .v-group { display: flex; align-items: center; gap: 8px; }
 
   .interact-hint {
     font-family: -apple-system, sans-serif;
@@ -684,7 +695,7 @@
             <div class="summary-row"><span class="k">Requires Payment Plan</span><span class="v">Yes</span></div>
             <div class="summary-row"><span class="k">First Payment Due</span>
               <span class="v-group">
-                <img src="assets/icons/clock-filled.svg" width="16" height="16" alt="" />
+                <img src="assets/icons/clock-filled.svg" width="20" height="20" alt="" />
                 <span class="v">Within 30 days</span>
               </span>
             </div>
@@ -693,7 +704,7 @@
               <span class="k">Repayment Amount</span>
               <span class="v-group"><span class="v strike">$1000.00</span></span>
             </div>
-            <div class="summary-row"><span class="k"></span><span class="v green" id="summaryAmount">$600.00</span></div>
+            <div class="summary-row"><span class="k tall">&nbsp;</span><span class="v green" id="summaryAmount">$600.00</span></div>
           </div>
         </div>
         <div class="interact-hint">Only the two option cards are interactive on this screen.</div>
